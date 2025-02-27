@@ -52,7 +52,7 @@ class TextGenerationViewModel(
         chosenDictionary = dictionary
 
         viewModelScope.launch {
-            val response = textGenerationRepository.generateText(subject = subject, "английский")
+            val response = textGenerationRepository.generateText(subject = subject, chosenDictionary?.language ?: "en")
 
             Log.i("TOSH", "generateText() | response = $response")
             if (response == null) {
@@ -68,7 +68,7 @@ class TextGenerationViewModel(
     }
 
     fun getTranslations(word: String) {
-        val flow = lookupWordDefRepository.loadDefinitionsByWriting(writing = word)
+        val flow = lookupWordDefRepository.loadDefinitionsByWriting(writing = word, fromLanguage = chosenDictionary?.language ?: "en")
         viewModelScope.launch {
             flow.collect {
                 _lookupWordState.value = it

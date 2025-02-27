@@ -43,7 +43,7 @@ import kotlinx.coroutines.launch
         WordDefinitionEntity::class,
         DictionaryWordDefCrossRef::class
     ],
-    version = 2
+    version = 3
 )
 @TypeConverters(DateConverter::class)
 abstract class WordAIDatabase : RoomDatabase() {
@@ -103,7 +103,8 @@ abstract class WordAIDatabase : RoomDatabase() {
                         DictionaryEntity(
                             id = 0,
                             label = "Базовый словарь",
-                            isFavorite = false
+                            isFavorite = false,
+                            language = "en"
                         )
                     )
 

@@ -81,7 +81,7 @@ class TextGenerationRepositoryImpl(
     }
 
     private fun createTextQuery(subject: String, language: String): String {
-        return "Сгенерируй текст на языке $language на тему $subject"
+        return "Сгенерируй текст на языке, у которого код языка $language на тему $subject"
     }
 
     private companion object {

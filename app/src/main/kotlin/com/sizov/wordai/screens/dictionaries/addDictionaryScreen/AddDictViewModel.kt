@@ -1,5 +1,6 @@
 package com.sizov.wordai.screens.dictionaries.addDictionaryScreen
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -17,14 +18,26 @@ class AddDictViewModel(
     private val dictionariesRepository: DictionariesRepository,
     private val dictDefinitionsRepository: DictionaryWordDefinitionsRepository
 ) : ViewModel() {
+    private val _allLanguages: MutableLiveData<List<LanguageModel>> = MutableLiveData()
     private val _allDefinitions: MutableLiveData<List<SelectableWordDefinition>> = MutableLiveData()
     private var unfilteredDefinitions: List<SelectableWordDefinition> = emptyList()
+    private var selectedLanguage: LanguageModel? = null
     private var selectedDefinitions: MutableList<WordDefinition> = mutableListOf()
+    val allLanguages: LiveData<List<LanguageModel>>
+        get() = _allLanguages
     val allDefinitions: LiveData<List<SelectableWordDefinition>>
         get() = _allDefinitions
 
     init {
+        loadAllLanguages()
         loadAllDefinitions()
+    }
+
+    private fun loadAllLanguages() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val languages = dictionariesRepository.getLangs()
+            _allLanguages.postValue(languages)
+        }
     }
 
     private fun loadAllDefinitions() {
@@ -51,6 +64,11 @@ class AddDictViewModel(
         _allDefinitions.value = unfilteredDefinitions
     }
 
+    fun changeLanguageItemSelection(languageModel: LanguageModel) {
+        selectedLanguage = languageModel
+        Log.i("TOSH", "selectedLanguage = $selectedLanguage")
+    }
+
     fun filter(text: String) {
         if (text.isEmpty()) {
             _allDefinitions.value = unfilteredDefinitions
@@ -68,7 +86,8 @@ class AddDictViewModel(
                 id = Dictionary.NEW_DICTIONARY_ID,
                 label = label.capitalizeFirstChar(),
                 size = Dictionary.SIZE_EMPTY,
-                isFavorite = false
+                isFavorite = false,
+                language = selectedLanguage?.title ?: "en"
             ),
             selectedDefinitions
         )

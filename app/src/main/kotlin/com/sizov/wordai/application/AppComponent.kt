@@ -43,7 +43,8 @@ class AppComponent(applicationContext: Context) {
         DictionariesRepositoryImpl(
             db.dictionariesDao,
             db.dictionaryWordDefCrossRefDao,
-            db.wordDefinitionsDao
+            db.wordDefinitionsDao,
+            yandexDictionaryApiService
         )
     }
     val dictDefinitionsRepository by lazy {

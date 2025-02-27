@@ -14,19 +14,22 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.google.android.material.textfield.TextInputLayout
 import com.sizov.wordai.R
 import com.sizov.wordai.application.WordAIApplication
 import com.sizov.wordai.screens.screensUtils.FragmentResult
 import com.sizov.wordai.screens.screensUtils.MarginItemDecoration
-import com.google.android.material.floatingactionbutton.FloatingActionButton
-import com.google.android.material.textfield.TextInputLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions")
-class AddDictionaryFragment : Fragment(), DefinitionSelectionListener {
+class AddDictionaryFragment : Fragment(),
+    DefinitionSelectionListener,
+    DictLanguageSelectionListener {
     private var saveDictionaryFab: FloatingActionButton? = null
     private var dictionaryLabelField: TextInputLayout? = null
+    private var languagesList: RecyclerView? = null
     private var definitionsList: RecyclerView? = null
     private var addDictViewModel: AddDictViewModel? = null
     private var searchQuery = ""
@@ -34,7 +37,7 @@ class AddDictionaryFragment : Fragment(), DefinitionSelectionListener {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_add_dictionary, container, false)
@@ -50,12 +53,20 @@ class AddDictionaryFragment : Fragment(), DefinitionSelectionListener {
         activity.title = getString(R.string.title_add_new_dictionary)
         val context = requireContext()
 
+        val dictLanguagesAdapter = DictLanguagesAdapter(context, this, emptyList())
         val adapter = SelectableDefsAdapter(context, this, emptyList())
+        val languagesLayoutManager = LinearLayoutManager(
+            context,
+            LinearLayoutManager.HORIZONTAL,
+            false
+        )
         val layoutManager = LinearLayoutManager(
             context,
             LinearLayoutManager.VERTICAL,
             false
         )
+
+        setupLanguagesList(dictLanguagesAdapter, languagesLayoutManager, languagesList)
         setupSelectedDefinitionsList(adapter, layoutManager, definitionsList)
 
         val factory = AddDictViewModelFactory(
@@ -65,7 +76,7 @@ class AddDictionaryFragment : Fragment(), DefinitionSelectionListener {
                 .appComponent.dictDefinitionsRepository,
         )
         addDictViewModel = ViewModelProvider(this, factory)[AddDictViewModel::class.java]
-        setupViewModel(addDictViewModel, adapter)
+        setupViewModel(addDictViewModel, adapter, dictLanguagesAdapter)
         setupListeners()
     }
 
@@ -112,15 +123,34 @@ class AddDictionaryFragment : Fragment(), DefinitionSelectionListener {
         )
     }
 
-    private fun setupViewModel(viewModel: AddDictViewModel?, adapter: SelectableDefsAdapter) {
+    private fun setupViewModel(
+        viewModel: AddDictViewModel?,
+        adapter: SelectableDefsAdapter,
+        languagesAdapter: DictLanguagesAdapter,
+    ) {
+        viewModel?.allLanguages?.observe(this) { languagesList ->
+            onLanguagesChanged(languagesList, languagesAdapter)
+        }
         viewModel?.allDefinitions?.observe(this) { definitionsList ->
             onDefinitionsChanged(definitionsList, adapter)
         }
     }
 
+    private fun onLanguagesChanged(
+        newLanguages: List<LanguageModel>,
+        adapter: DictLanguagesAdapter,
+    ) {
+        val diffCallback = SelectableLanguageDiffCallback(
+            newList = newLanguages,
+            oldList = adapter.languageList
+        )
+        DiffUtil.calculateDiff(diffCallback).dispatchUpdatesTo(adapter)
+        adapter.languageList = newLanguages
+    }
+
     private fun onDefinitionsChanged(
         newDefinitions: List<SelectableWordDefinition>,
-        adapter: SelectableDefsAdapter
+        adapter: SelectableDefsAdapter,
     ) {
         val diffCallback = SelectableWordDefDiffCallback(
             newList = newDefinitions,
@@ -152,10 +182,19 @@ class AddDictionaryFragment : Fragment(), DefinitionSelectionListener {
         }
     }
 
+    private fun setupLanguagesList(
+        adapter: DictLanguagesAdapter,
+        layoutManager: LinearLayoutManager,
+        languagesList: RecyclerView?,
+    ) {
+        languagesList?.adapter = adapter
+        languagesList?.layoutManager = layoutManager
+    }
+
     private fun setupSelectedDefinitionsList(
         adapter: SelectableDefsAdapter,
         layoutManager: LinearLayoutManager,
-        definitionsList: RecyclerView?
+        definitionsList: RecyclerView?,
     ) {
         definitionsList?.addItemDecoration(
             MarginItemDecoration(
@@ -170,13 +209,19 @@ class AddDictionaryFragment : Fragment(), DefinitionSelectionListener {
     private fun initViews(view: View) {
         saveDictionaryFab = view.findViewById(R.id.save_dictionary_fab)
         dictionaryLabelField = view.findViewById(R.id.enter_dictionary_label)
+        languagesList = view.findViewById(R.id.languages_list)
         definitionsList = view.findViewById(R.id.added_dictionaries_list)
     }
 
     private fun clearViews() {
         saveDictionaryFab = null
         dictionaryLabelField = null
+        languagesList = null
         definitionsList = null
+    }
+
+    override fun onLanguageSelectionChanged(selectedLanguageModel: LanguageModel) {
+        addDictViewModel?.changeLanguageItemSelection(selectedLanguageModel)
     }
 
     companion object {

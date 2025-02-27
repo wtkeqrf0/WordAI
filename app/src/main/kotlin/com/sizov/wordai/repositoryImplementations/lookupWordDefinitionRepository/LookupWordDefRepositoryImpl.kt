@@ -20,12 +20,19 @@ class LookupWordDefRepositoryImpl(
     private val wordDefinitionsDao: WordDefinitionsDao,
 ) : LookupWordDefinitionsRepository {
     override fun loadDefinitionsByWriting(
-        writing: String
+        writing: String,
+        fromLanguage: String,
     ): Flow<DefinitionsRequestResult> = flow {
         try {
             emit(DefinitionsRequestResult.Loading)
             val url = "https://dictionary.yandex.net/api/v1/dicservice.json/lookup"
-            val response: YandexDictionaryResponse = yandexDictApiService.lookupWord(url, key = BuildConfig.YANDEX_DICT_API_KEY, writing)
+            val response: YandexDictionaryResponse =
+                yandexDictApiService.lookupWord(
+                    url = url,
+                    key = BuildConfig.YANDEX_DICT_API_KEY,
+                    wordWriting = writing,
+                    directionOfTranslation = "$fromLanguage-ru"
+                )
             val definitionsList: List<WordDefinition> = response
                 .definitions.flatMap { definitionResponse ->
                     definitionResponse.translations.map { translationResponse ->
@@ -49,7 +56,8 @@ class LookupWordDefRepositoryImpl(
     }.flowOn(Dispatchers.IO)
 
     override fun getSavedDefinitionsByWriting(
-        writing: String
+        writing: String,
+        fromLanguage: String,
     ): Flow<List<WordDefinition>> {
         return wordDefinitionsDao.getFlowOfDefinitionsByWriting(writing).map { definitionsList ->
             definitionsList.map { wordDefinitionQueryResult ->

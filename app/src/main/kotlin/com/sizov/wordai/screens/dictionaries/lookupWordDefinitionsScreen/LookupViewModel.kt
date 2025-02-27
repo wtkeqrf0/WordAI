@@ -56,8 +56,9 @@ class LookupViewModel(
     fun lookupByWriting(writing: String) {
         _dataLoadingEvents.value = UiEvent.Loading.ShowLoading()
         viewModelScope.launch(Dispatchers.IO) {
-            val flowFromRemote = lookupWordDefRepository.loadDefinitionsByWriting(writing)
-            val flowFromLocal = lookupWordDefRepository.getSavedDefinitionsByWriting(writing)
+            val dictFromLanguage = dictionariesRepository.getDictionaryById(dictionaryId).language
+            val flowFromRemote = lookupWordDefRepository.loadDefinitionsByWriting(writing, dictFromLanguage)
+            val flowFromLocal = lookupWordDefRepository.getSavedDefinitionsByWriting(writing, dictFromLanguage)
 
             flowFromRemote.combine(flowFromLocal) { networkResult, localDefinitions ->
                 Pair(networkResult, localDefinitions)

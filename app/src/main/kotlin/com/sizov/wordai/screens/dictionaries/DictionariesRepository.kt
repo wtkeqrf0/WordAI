@@ -2,6 +2,7 @@ package com.sizov.wordai.screens.dictionaries
 
 import com.sizov.wordai.entities.Dictionary
 import com.sizov.wordai.entities.WordDefinition
+import com.sizov.wordai.screens.dictionaries.addDictionaryScreen.LanguageModel
 import kotlinx.coroutines.flow.Flow
 
 interface DictionariesRepository {
@@ -28,4 +29,6 @@ interface DictionariesRepository {
         dictionary: Dictionary,
         wordDefinition: WordDefinition
     )
+
+    suspend fun getLangs(): List<LanguageModel>
 }

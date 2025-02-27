@@ -4,7 +4,8 @@ data class Dictionary(
     val id: Long,
     val label: String,
     val size: Int,
-    var isFavorite: Boolean
+    var isFavorite: Boolean,
+    val language: String
 ) {
     companion object {
         const val NEW_DICTIONARY_ID = 0L

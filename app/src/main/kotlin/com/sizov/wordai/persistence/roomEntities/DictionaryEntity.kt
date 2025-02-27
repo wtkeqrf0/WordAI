@@ -12,5 +12,7 @@ data class DictionaryEntity(
     @ColumnInfo(name = "label")
     val label: String,
     @ColumnInfo(name = "is_favorite")
-    val isFavorite: Boolean
+    val isFavorite: Boolean,
+    @ColumnInfo(name = "language")
+    val language: String
 )

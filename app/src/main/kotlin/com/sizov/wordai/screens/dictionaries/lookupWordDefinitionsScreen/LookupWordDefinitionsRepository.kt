@@ -5,7 +5,7 @@ import com.sizov.wordai.repositoryImplementations.lookupWordDefinitionRepository
 import kotlinx.coroutines.flow.Flow
 
 interface LookupWordDefinitionsRepository {
-    fun loadDefinitionsByWriting(writing: String): Flow<DefinitionsRequestResult>
+    fun loadDefinitionsByWriting(writing: String, fromLanguage: String): Flow<DefinitionsRequestResult>
 
-    fun getSavedDefinitionsByWriting(writing: String): Flow<List<WordDefinition>>
+    fun getSavedDefinitionsByWriting(writing: String, fromLanguage: String): Flow<List<WordDefinition>>
 }

@@ -23,6 +23,7 @@ class DictionariesAdapter(
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val label: TextView = view.findViewById(R.id.dictionary_title)
         private val dictionarySize: TextView = view.findViewById(R.id.dictionary_size_text)
+        private val languageText: TextView = view.findViewById(R.id.language_text)
         val isFavoriteCheckBox: CheckBox = view.findViewById(R.id.is_favorite_checkbox)
         val learnButton: Button = view.findViewById(R.id.learn_button)
 
@@ -40,6 +41,7 @@ class DictionariesAdapter(
                 }
             }
             isFavoriteCheckBox.isChecked = dictionary.isFavorite
+            languageText.text = dictionary.language
         }
     }
 

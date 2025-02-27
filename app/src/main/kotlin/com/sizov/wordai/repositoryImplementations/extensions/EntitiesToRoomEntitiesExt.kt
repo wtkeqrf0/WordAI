@@ -14,7 +14,8 @@ fun Dictionary.toDictionaryEntity(entityId: Long): DictionaryEntity {
     return DictionaryEntity(
         id = entityId,
         label = this.label,
-        isFavorite = this.isFavorite
+        isFavorite = this.isFavorite,
+        language = this.language
     )
 }
 

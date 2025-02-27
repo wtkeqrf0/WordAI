@@ -10,5 +10,7 @@ data class DictionaryQueryResult(
     @ColumnInfo(name = "is_favorite")
     val isFavorite: Boolean,
     @ColumnInfo(name = "size")
-    val size: Int
+    val size: Int,
+    @ColumnInfo(name = "language")
+    val language: String
 )

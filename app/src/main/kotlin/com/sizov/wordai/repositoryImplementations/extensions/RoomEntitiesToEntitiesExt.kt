@@ -10,7 +10,8 @@ fun DictionaryEntity.toDictionary(size: Int): Dictionary {
         id = this.id,
         label = this.label,
         isFavorite = this.isFavorite,
-        size = size
+        size = size,
+        language = this.language
     )
 }
 
