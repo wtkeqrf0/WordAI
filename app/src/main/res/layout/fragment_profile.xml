@@ -21,8 +21,7 @@
             android:gravity="center"
             android:text="@string/text_empty_dictionaries_warning"
             android:textSize="@dimen/title_size"
-            android:textColor="?attr/subheadingColor"
-            app:drawableTopCompat="@drawable/ic_kotelogo_placeholder" />
+            android:textColor="?attr/subheadingColor" />
 
         <LinearLayout
             android:id="@+id/statistics_group"

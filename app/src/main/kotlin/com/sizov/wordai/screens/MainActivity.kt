@@ -1,14 +1,22 @@
 package com.sizov.wordai.screens
 
 import android.Manifest
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.commit
+import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.sizov.wordai.R
 import com.sizov.wordai.application.WordAIApplication
 import com.sizov.wordai.entities.Dictionary
@@ -19,12 +27,13 @@ import com.sizov.wordai.screens.dictionaries.dictionariesScreen.DictionariesFrag
 import com.sizov.wordai.screens.dictionaries.dictionariesScreen.TrainersBottomSheet
 import com.sizov.wordai.screens.dictionaries.dictionaryDetailsScreen.DictionaryDetailsFragment
 import com.sizov.wordai.screens.dictionaries.lookupWordDefinitionsScreen.LookupWordDefinitionsFragment
+import com.sizov.wordai.screens.screensUtils.FragmentResult
 import com.sizov.wordai.screens.textGeneration.RecognizedTextBottomSheet
 import com.sizov.wordai.screens.textGeneration.RecognizedWordsFragment
-import com.sizov.wordai.screens.screensUtils.FragmentResult
 import com.sizov.wordai.screens.trainers.TrainFlashcardsFragment
 import com.sizov.wordai.screens.trainers.TrainWriteFragment
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.sizov.wordai.services.NotificationReceiver
+import java.util.Calendar
 
 @Suppress("TooManyFunctions")
 class MainActivity : AppCompatActivity() {
@@ -44,6 +53,8 @@ class MainActivity : AppCompatActivity() {
         setupDefinitionsResultListeners()
         setupTrainersDialogResultListeners()
         setupRecognizeResultListener()
+        createNotificationChannel()
+        scheduleDailyNotification()
 
         if (savedInstanceState == null) {
             val item = bottomNavigationView?.menu?.findItem(R.id.dictionary_tab)
@@ -276,6 +287,48 @@ class MainActivity : AppCompatActivity() {
                 permission
             ) == PackageManager.PERMISSION_GRANTED
         }
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name: CharSequence = "Daily Reminder"
+            val description = "Channel for daily reminders"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel("daily_reminder", name, importance)
+            channel.description = description
+
+            val notificationManager = getSystemService(NotificationManager::class.java)
+            notificationManager.createNotificationChannel(channel)
+        }
+    }
+
+    private fun scheduleDailyNotification() {
+        val alarmManager = getSystemService(ALARM_SERVICE) as AlarmManager
+        val intent = Intent(this, NotificationReceiver::class.java)
+        val pendingIntent = PendingIntent.getBroadcast(
+            this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = System.currentTimeMillis()
+        calendar[Calendar.HOUR_OF_DAY] = 10
+        calendar[Calendar.MINUTE] = 0
+        calendar[Calendar.SECOND] = 0
+
+
+        if (calendar.timeInMillis < System.currentTimeMillis()) {
+            calendar.add(Calendar.DAY_OF_YEAR, 1)
+        }
+
+        Log.i("TOSH", "calendar = ${calendar.timeInMillis}")
+
+
+        alarmManager.setInexactRepeating(
+            AlarmManager.RTC_WAKEUP,
+            calendar.timeInMillis,
+            AlarmManager.INTERVAL_DAY,
+            pendingIntent
+        )
     }
 
     companion object {

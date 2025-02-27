@@ -14,7 +14,7 @@ import com.google.android.material.chip.ChipGroup
 
 class TextGenerationDialog(
     private val dictionaries: List<Dictionary>,
-    private val onSuccess: (subject: String) -> Unit
+    private val onSuccess: (dictionary: Dictionary, subject: String) -> Unit
 ) : DialogFragment() {
 
     private var chosenDictionary: Dictionary? = null
@@ -62,9 +62,12 @@ class TextGenerationDialog(
                 val topic = topicInput.text.toString()
                 val dictionary = dictionaries.firstOrNull { it.id.toInt() == dictionaryChipGroup.checkedChipId }
 
-                // Здесь можно обработать введенные данные (например, сохранить их)
-                Log.i("TOSH", "topic = $topic | dictionary = $dictionary")
-                onSuccess(topic)
+
+                dictionary?.let {
+                    Log.i("TOSH", "topic = $topic | dictionary = $dictionary")
+                    onSuccess(dictionary, topic)
+                }
+
                 dialog.dismiss()
             }
             .setNegativeButton("Отмена") { dialog, _ -> dialog.cancel() }

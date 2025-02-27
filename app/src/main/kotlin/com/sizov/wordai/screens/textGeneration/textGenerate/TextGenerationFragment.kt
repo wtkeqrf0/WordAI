@@ -1,6 +1,5 @@
 package com.sizov.wordai.screens.textGeneration.textGenerate
 
-import android.content.Context.LAYOUT_INFLATER_SERVICE
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -13,6 +12,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.PopupWindow
 import android.widget.Space
@@ -20,17 +20,18 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.core.content.ContextCompat.getSystemService
-import androidx.core.view.marginStart
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.sizov.wordai.R
 import com.sizov.wordai.application.WordAIApplication
+import com.sizov.wordai.entities.Dictionary
+import com.sizov.wordai.entities.WordDefinition
 import com.sizov.wordai.repositoryImplementations.lookupWordDefinitionRepository.DefinitionsRequestResult
-import com.sizov.wordai.screens.dictionaries.lookupWordDefinitionsScreen.LookupWordDefinitionsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -59,21 +60,23 @@ class TextGenerationFragment : Fragment() {
         val factory = TextGenerationViewModelFactory(
             textGenerationRepository = appComponent.textGenerationRepository,
             dictionariesRepository = appComponent.dictionariesRepository,
-            lookupWordDefinitionsRepository = appComponent.lookupWordDefRepository
+            lookupWordDefinitionsRepository = appComponent.lookupWordDefRepository,
+            editWordDefinitionsRepository = appComponent.editWordDefinitionsRepository
         )
         viewModel = ViewModelProvider(this, factory)[TextGenerationViewModel::class.java]
 
         requireActivity().title = getString(R.string.title_text_generation)
 
-        scope.launch {
-            viewModel.dictionariesFlow.collect { dictionaries ->
+        view.findViewById<Button>(R.id.button_generate).setOnClickListener {
+            scope.launch {
+                val dictionaries = viewModel.dictionariesFlow.first()
                 try {
                     Log.i("TOSH", "даров мужик, вот словари: $dictionaries")
                     val dialog = TextGenerationDialog(
                         dictionaries = dictionaries,
-                        onSuccess = { subject: String ->
+                        onSuccess = { dictionary: Dictionary, subject: String ->
                             Log.i("TOSH", "Начинаем отправлять запрос на генерацию текста с темой: '$subject'")
-                            viewModel.generateText(subject = subject)
+                            viewModel.generateText(dictionary = dictionary, subject = subject)
                         }
                     )
                     dialog.show(parentFragmentManager, TEXT_GENERATION_DIALOG_TAG)
@@ -100,6 +103,7 @@ class TextGenerationFragment : Fragment() {
                                 override fun onClick(widget: View) {
                                     viewModel.getTranslations(word)
                                 }
+
                                 override fun updateDrawState(ds: android.text.TextPaint) {
                                     super.updateDrawState(ds)
                                     ds.isUnderlineText = false  // Убираем подчеркивание
@@ -123,20 +127,23 @@ class TextGenerationFragment : Fragment() {
                     }
                 }
             }
-
         }
 
         scope.launch {
             viewModel.lookupWordState.collect { state ->
-                if(state is DefinitionsRequestResult.Success) {
+                if (state is DefinitionsRequestResult.Success) {
                     withContext(Dispatchers.Main) {
                         val textView = view.findViewById<TextView>(R.id.generated_text)
-                        showPopup(textView, state.definitions.map { it.mainTranslation })
+                        showPopup(textView, state.definitions)
                     }
                 }
             }
         }
+    }
 
+    override fun onPause() {
+        scope.cancel()
+        super.onPause()
     }
 
     override fun onPause() {
@@ -157,7 +164,7 @@ class TextGenerationFragment : Fragment() {
     }
 
     // Функция для отображения PopupWindow
-    private fun showPopup(view: View, translations: List<String>) {
+    private fun showPopup(view: View, translations: List<WordDefinition>) {
 
         // Используем LayoutInflater для создания попапа
         val inflater = getSystemService(requireContext(), LayoutInflater::class.java) as LayoutInflater
@@ -166,21 +173,24 @@ class TextGenerationFragment : Fragment() {
         // Находим контейнер для отображения списка переводов
         val linearLayout = popupView.findViewById<LinearLayout>(R.id.popup_linear_layout)
 
-        val popupWindow = PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true)
+        val popupWindow =
+            PopupWindow(popupView, LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT, true)
 
         // Добавляем переводы в LinearLayout
         for (translation in translations) {
             // Создаем TextView для каждого перевода
             val textView = TextView(requireContext())
-            textView.text = translation
-            textView.textSize = 16f // Устанавливаем размер шрифта
+            textView.text = translation.mainTranslation
+            textView.textSize = 20f // Устанавливаем размер шрифта
             textView.setBackgroundResource(R.drawable.rounded_background)
 
             textView.setPadding(10, 10, 10, 10) // Отступы между элементами
+            textView.gravity = Gravity.CENTER
 
             textView.isClickable = true
             textView.setOnClickListener {
-
+                viewModel.saveTranslationToDictionary(translation = translation)
+                Toast.makeText(context, "Сохранено в словарь!", Toast.LENGTH_SHORT).show()
                 popupWindow.dismiss()
             }
             // Добавляем TextView в LinearLayout
