@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">WordAI</string>
     <string name="dictionaries_ru">Словари</string>
-    <string name="recognize_ru">Распознать</string>
+    <string name="generate_ru">Сгенерировать</string>
     <string name="profile_ru">Профиль</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="play_speech_btn_description">Прослушать произношение слова</string>
@@ -68,7 +68,6 @@
     <string name="repeat_train">Тренироваться</string>
     <string name="cards_trainer_title">Карточки</string>
     <string name="writer_trainer_title">Написание слов</string>
-    <string name="recognize_button_text">Распознать</string>
     <string name="text_edit_recognized_text_field_description">Вы можете отредактировать распозанный текст:</string>
     <string name="button_continue_recognize_text">Продолжить</string>
     <string name="hint_recognized_text">Распознанный текст</string>

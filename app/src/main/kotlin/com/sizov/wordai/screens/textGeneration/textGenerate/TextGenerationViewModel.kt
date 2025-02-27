@@ -35,6 +35,11 @@ class TextGenerationViewModel(
         _recognizedText.value = text
     }
 
+    fun clearStates() {
+        _lookupWordState.value = DefinitionsRequestResult.Loading
+        _generateTextState.value = TextState.Init
+    }
+
     fun generateText(subject: String) {
         viewModelScope.launch {
             val response = textGenerationRepository.generateText(subject = subject, "английский")

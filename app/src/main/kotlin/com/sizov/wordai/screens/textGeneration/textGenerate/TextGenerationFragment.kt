@@ -29,6 +29,7 @@ import com.sizov.wordai.repositoryImplementations.lookupWordDefinitionRepository
 import com.sizov.wordai.screens.dictionaries.lookupWordDefinitionsScreen.LookupWordDefinitionsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -44,6 +45,11 @@ class TextGenerationFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_text_generation, container, false)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        viewModel.clearStates()
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -131,6 +137,11 @@ class TextGenerationFragment : Fragment() {
             }
         }
 
+    }
+
+    override fun onPause() {
+        scope.cancel()
+        super.onPause()
     }
 
     private fun createRippleBackground(): Drawable {

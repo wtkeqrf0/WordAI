@@ -8,8 +8,8 @@
     <item
         android:id="@+id/recognition_tab"
         android:enabled="true"
-        android:icon="@drawable/ic_baseline_camera"
-        android:title="@string/recognize_ru" />
+        android:icon="@drawable/ic_add"
+        android:title="@string/generate_ru" />
     <item
         android:id="@+id/profile_tab"
         android:enabled="true"

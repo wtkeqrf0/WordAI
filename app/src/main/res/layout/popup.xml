@@ -12,8 +12,9 @@
         android:id="@+id/popupText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Текст попапа"
+        android:text="Выбери перевод"
         android:textSize="18sp"
+        android:paddingBottom="10dp"
         android:textColor="#000000"/>
 
 </LinearLayout>
