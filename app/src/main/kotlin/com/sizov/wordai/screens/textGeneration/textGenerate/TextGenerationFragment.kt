@@ -146,11 +146,6 @@ class TextGenerationFragment : Fragment() {
         super.onPause()
     }
 
-    override fun onPause() {
-        scope.cancel()
-        super.onPause()
-    }
-
     private fun createRippleBackground(): Drawable {
         val backgroundColor = Color.parseColor("#80D3D3D3") // Полупрозрачный фон (80 - это альфа-канал)
 
