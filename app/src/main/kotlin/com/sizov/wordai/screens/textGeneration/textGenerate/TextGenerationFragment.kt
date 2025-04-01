@@ -27,6 +27,7 @@ import com.sizov.wordai.application.WordAIApplication
 import com.sizov.wordai.entities.Dictionary
 import com.sizov.wordai.entities.WordDefinition
 import com.sizov.wordai.repositoryImplementations.lookupWordDefinitionRepository.DefinitionsRequestResult
+import com.sizov.wordai.screens.screensUtils.getColorFromAttr
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -109,7 +110,7 @@ class TextGenerationFragment : Fragment() {
                                 override fun updateDrawState(ds: android.text.TextPaint) {
                                     super.updateDrawState(ds)
                                     ds.isUnderlineText = false  // Убираем подчеркивание
-                                    ds.color = Color.BLACK
+                                    ds.color = context?.getColorFromAttr(attrColor = R.attr.titleColor) ?: Color.BLACK
                                 }
                             }
                             spannable.setSpan(clickableSpan, startIndex, endIndex, 0)

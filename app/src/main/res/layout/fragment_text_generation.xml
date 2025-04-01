@@ -16,6 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="30sp"
+            android:textColor="?attr/titleColor"
             android:text=""
             android:padding="10dp">
         </TextView>
