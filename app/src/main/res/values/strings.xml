@@ -95,4 +95,5 @@
     <string name="text_negative_answer_button_description">Кнопка отрицательного ответа</string>
     <string name="text_positive_answer_button_description">Кнопка положительного ответа</string>
     <string name="text_to_dictionaries_button">К словарям</string>
+    <string name="generate_text">Сгенерировать</string>
 </resources>

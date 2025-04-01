@@ -94,7 +94,9 @@ class TextGenerationFragment : Fragment() {
 
                         val generatedText = state.generatedText.split(' ')
 
-                        val spannable = SpannableString(generatedText.joinToString(" "))
+                        val textString = generatedText.joinToString(" ") + "\n"
+
+                        val spannable = SpannableString(textString)
 
                         var startIndex = 0
                         generatedText.forEach { word ->
